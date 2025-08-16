@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import createOtpRoutes from "../infra/http/routes/otp-routes";
+import { setupSwagger } from "../infra/config/swagger";
 import { UserAuthRepositoryImpl } from "../infra/db/repositories/user-auth-repository-impl";
 import { GenerateOtpToken } from "../application/use-cases/impl/generate-otp-impl";
 import { ValidateOtpToken } from "../application/use-cases/impl/validate-otp-impl";
@@ -17,6 +18,8 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+setupSwagger(app);
 
 const userAuthRepository = new UserAuthRepositoryImpl();
 const generateOtpUseCase = new GenerateOtpToken(userAuthRepository);
