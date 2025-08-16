@@ -1,6 +1,10 @@
 import express from "express";
 import cors from "cors";
-import otpRoutes from "../infra/http/routes/otp-routes";
+import createOtpRoutes from "../infra/http/routes/otp-routes";
+import { UserAuthRepositoryImpl } from "../infra/db/repositories/user-auth-repository-impl";
+import { GenerateOtpToken } from "../application/use-cases/impl/generate-otp-impl";
+import { ValidateOtpToken } from "../application/use-cases/impl/validate-otp-impl";
+import { OtpController } from "../infra/http/controller/otp-controller";
 
 const PORT = process.env.PORT || 4000;
 const HOSTNAME = process.env.HOSTNAME || "http://localhost";
@@ -14,11 +18,13 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-  res.send("Bem-vindo!");
-});
+const userAuthRepository = new UserAuthRepositoryImpl();
+const generateOtpUseCase = new GenerateOtpToken(userAuthRepository);
+const validateOtpUseCase = new ValidateOtpToken(userAuthRepository);
 
-app.use("/api", otpRoutes);
+const otpController = new OtpController(generateOtpUseCase, validateOtpUseCase);
+
+app.use("/api", createOtpRoutes(otpController));
 
 app.use((req, res) => {
   res.status(404);
