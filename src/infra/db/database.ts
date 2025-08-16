@@ -1,11 +1,19 @@
 import { Pool } from "pg";
+import dotenv from "dotenv";
+
+const isDocker = process.env.NODE_ENV === "docker";
+
+
+dotenv.config({
+  path: isDocker ? ".env.docker" : ".env.local"
+});
 
 const database = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "otp_db",
-  password: "postgres",
-  port: 5432,
+  user: process.env.DATABASE_USER ?? "postgres",
+  host: process.env.DATABASE_HOST,
+  database: process.env.DATABASE_NAME ?? "otp_db",
+  password: process.env.DATABASE_PASSWORD ?? "postgres",
+  port: Number(process.env.DATABASE_PORT) || 5432,
 });
 
 const SQL_USER_AUTH_CREATE = `
