@@ -12,11 +12,13 @@ const generateOtp: GenerateOtpUseCase = new GenerateOtpToken(
   userAuthRepository
 );
 
-
 export class OtpController {
   async getOtp(req: Request, res: Response) {
     try {
-      const requestDto: GetOtpRequestDTO = { userId: req.params.userId };
+      const { userId } = req.body; // pega apenas o userId
+      if (!userId) return res.status(400).json({ error: "userId obrigatório" });
+
+      const requestDto: GetOtpRequestDTO = { userId };
       const token = await generateOtp.execute(requestDto.userId);
 
       const responseDto: GetOtpResponseDTO = {
