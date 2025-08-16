@@ -26,6 +26,7 @@ export class OtpController {
 
       res.json(responseDto);
     } catch (err) {
+      console.error(`[${new Date().toISOString()}] Erro:`, String(err));
       res.status(500).json({ error: (err as Error).message });
     }
   }
@@ -51,6 +52,7 @@ export class OtpController {
 
       return res.status(200).json({ status: "ok" });
     } catch (err) {
+      console.error(`[${new Date().toISOString()}] Erro:`, String(err));
       res.status(500).json({ error: (err as Error).message });
     }
   }
