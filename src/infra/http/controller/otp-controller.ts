@@ -1,8 +1,11 @@
 import { GetOtpRequestDTO } from "../../../application/dto/request-getOtp-dto";
+import { ValidateOtpRequestDTO } from "../../../application/dto/request-validateOtp-dto";
 import { GetOtpResponseDTO } from "../../../application/dto/response-getOtp-dto";
 import { GenerateOtpUseCase } from "../../../application/use-cases/generate-otp-us";
 import { GenerateOtpToken } from "../../../application/use-cases/impl/generate-otp-impl";
+import { ValidateOtpToken } from "../../../application/use-cases/impl/validate-otp-impl";
 import { UserAuthRepositoryUseCase } from "../../../application/use-cases/user-auth-repository-us";
+import { ValidateTokenOtpUseCase } from "../../../application/use-cases/validate-otp-us";
 import { UserAuthRepositoryImpl } from "../../db/repositories/user-auth-repository-impl";
 import { Request, Response } from "express";
 
@@ -11,6 +14,7 @@ const userAuthRepository: UserAuthRepositoryUseCase =
 const generateOtp: GenerateOtpUseCase = new GenerateOtpToken(
   userAuthRepository
 );
+const validateOtp: ValidateTokenOtpUseCase = new ValidateOtpToken(userAuthRepository);
 
 export class OtpController {
   async getOtp(req: Request, res: Response) {
@@ -28,6 +32,26 @@ export class OtpController {
 
       res.json(responseDto);
     } catch (err) {
+      res.status(500).json({ error: (err as Error).message });
+    }
+  }
+
+  async validateOtp(req: Request, res: Response){
+    try{
+      const requestDto: ValidateOtpRequestDTO = req.body;
+
+    if (!requestDto.userId || !requestDto.token) {
+      return res.status(400).json({ error: "userId e token são obrigatórios" });
+    }
+
+    const isValid = await validateOtp.execute(requestDto.userId, requestDto.token);
+
+    if(!isValid){
+      return res.status(400).json({error: "token inválido!"});
+    }
+
+    return res.status(200).json({status: "ok"});
+    }catch (err) {
       res.status(500).json({ error: (err as Error).message });
     }
   }

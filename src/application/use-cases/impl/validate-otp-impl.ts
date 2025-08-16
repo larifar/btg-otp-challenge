@@ -18,7 +18,8 @@ export class ValidateOtpToken implements ValidateTokenOtpUseCase{
     }
 
     private validateOtp(seed: string, token: string): boolean{
-        return totp.check(token, seed);
+        const isValid = totp.check(token, seed);
+        return isValid;
     }
     
 }
